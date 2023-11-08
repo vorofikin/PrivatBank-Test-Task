@@ -1,1 +1,5 @@
 -define(API_URL_PRIVAT, "https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5").
+-define(CCY, <<"ccy">>).
+-define(BASE_CCY, <<"base_ccy">>).
+-define(BUY, <<"buy">>).
+-define(SALE, <<"sale">>).
