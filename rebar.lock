@@ -1,10 +1,6 @@
 {"1.2.0",
 [{<<"cowboy">>,{pkg,<<"cowboy">>,<<"2.9.0">>},0},
  {<<"cowlib">>,{pkg,<<"cowlib">>,<<"2.11.0">>},1},
- {<<"exomler">>,
-  {git,"https://github.com/erlangbureau/exomler.git",
-       {ref,"27209acb4231b5da5d167dd1f85ee08c9a654793"}},
-  0},
  {<<"jsx">>,{pkg,<<"jsx">>,<<"3.1.0">>},0},
  {<<"ranch">>,{pkg,<<"ranch">>,<<"2.1.0">>},0}]}.
 [
