@@ -9,9 +9,16 @@ init(#{method := <<"GET">>} = Req, Opts) ->
 	Response = cowboy_req:reply(200, #{
 		<<"content-type">> => <<"application/xml">>
 	}, Result, Req),
+	{ok, Response, Opts};
+init(Req, Opts) ->
+	Pid = proplists:get_value(pid, Opts),
+	Result = request_handler(Pid, not_found),
+	Response = cowboy_req:reply(200, #{
+		<<"content-type">> => <<"application/xml">>
+	}, Result, Req),
 	{ok, Response, Opts}.
 
 request_handler(Pid) ->
-	io:format("2~n"),
-	Result = gen_server:call(Pid, currency),
-	Result.
+	gen_server:call(Pid, currency).
+request_handler(Pid, not_found) ->
+	gen_server:call(Pid, not_found).

@@ -30,18 +30,22 @@ handle_call(currency, _From, State) ->
 		[{currency, Value}] -> {reply, Value, State};
 		_ ->
 			Currency = get_currency(),
-			Xml = gen_xml(
+			XmlFields = get_currency_xml_fields(
 				jsx:decode(
 					list_to_binary(Currency),
 					[return_maps]
 				)
 			),
+			Xml = gen_xml(XmlFields),
 			ets:insert(?TABLE, {currency, Xml}),
 			erlang:send_after(60000, self(), delete_currency),
 			{reply, Xml, State}
 	end;
-handle_call(Request, From, State) ->
-	erlang:error(not_implemented).
+handle_call(not_found, _From, State) ->
+	Xml = gen_xml(get_not_found_xml_fields()),
+	{reply, Xml, State};
+handle_call(_Request, _From, State) ->
+	{reply, ok, State}.
 
 handle_info(delete_currency, State) ->
 	ets:delete(?TABLE, currency),
@@ -64,22 +68,29 @@ get_currency() ->
 	ets:insert(?TABLE, {currency, Body}),
 	Body.
 
-fields_to_xml(Fields) ->
-	[{row, [], [{exchangerate, [
-		{ccy, maps:get(?CCY, Map)},
-		{base_ccy, maps:get(?BASE_CCY, Map)},
-		{buy, maps:get(?BUY, Map)},
-		{sale, maps:get(?SALE, Map)}
-	], []}]} || Map <- Fields
+get_currency_xml_fields(Fields) ->
+	[
+		{exchangerates, [
+			{[{row, [], [{exchangerate, [
+				{ccy, maps:get(?CCY, Map)},
+				{base_ccy, maps:get(?BASE_CCY, Map)},
+				{buy, maps:get(?BUY, Map)},
+				{sale, maps:get(?SALE, Map)}
+			], []}]} || Map <- Fields
+			]}
+		]}
+	].
+
+get_not_found_xml_fields() ->
+	[
+		{message, [
+			{route_not_found, [], []}
+		]}
 	].
 
 gen_xml(Data) ->
 	Xml = xmerl:export_simple(
-		[
-			{exchangerates, [
-				{fields_to_xml(Data)}
-			]}
-		],
+		Data,
 		xmerl_xml,
 		[{prolog, ""}]
 	),
